@@ -5,50 +5,53 @@
 
  class MyDataObjectAdmin extends ModelAdmin {
 
- 	static $managed_models = array(
- 		'MyDataObject'
- 	);
+    static $managed_models = array(
+        'MyDataObject'
+    );
 
- 	public function getEditForm($id = null, $fields = null) {
- 		$form = parent::getEditForm($id, $fields);
-  		$config = $form->Fields()->first()->getConfig();
- 		$config->getComponentByType('GridFieldDetailForm')
- 				->setItemRequestClass('GridFieldDetailFormWithSearch_ItemRequest')
- 				->setTemplate('GridFieldDetailFormWithSearch');
-  		return $form;
- 	}
+    public function getEditForm($id = null, $fields = null) {
+        $form = parent::getEditForm($id, $fields);
+        $config = $form->Fields()->first()->getConfig();
+        $config->getComponentByType('GridFieldDetailForm')
+                ->setItemRequestClass('GridFieldDetailFormWithSearch_ItemRequest')
+                ->setTemplate('GridFieldDetailFormWithSearch');
+        return $form;
+    }
  }
  */
-class GridFieldDetailFormWithSearch_ItemRequest extends GridFieldDetailForm_ItemRequest {
+class GridFieldDetailFormWithSearch_ItemRequest extends GridFieldDetailForm_ItemRequest
+{
 
-	private static $allowed_actions = array(
-		'edit',
-		'view',
-		'ItemEditForm'
-	);
-	
-	public function edit($request) {
-		$controller = $this->getToplevelController();
-		$form = $this->ItemEditForm($this->gridField, $request);
+    private static $allowed_actions = array(
+        'edit',
+        'view',
+        'ItemEditForm'
+    );
+    
+    public function edit($request)
+    {
+        $controller = $this->getToplevelController();
+        $form = $this->ItemEditForm($this->gridField, $request);
 
-		$return = $this->customise(array(
-			'Backlink' => $controller->hasMethod('Backlink') ? $controller->Backlink() : $controller->Link(),
-			'ItemEditForm' => $form,
-			'SearchForm' => $controller->SearchForm()
-		))->renderWith($this->template);
+        $return = $this->customise(array(
+            'Backlink' => $controller->hasMethod('Backlink') ? $controller->Backlink() : $controller->Link(),
+            'ItemEditForm' => $form,
+            'SearchForm' => $controller->SearchForm()
+        ))->renderWith($this->template);
 
-		if($request->isAjax()) {
-			return $return;
-		} else {
-			return $controller->customise(array(
-				'Content' => $return,
-			));
-		}
-	}
+        if ($request->isAjax()) {
+            return $return;
+        } else {
+            return $controller->customise(array(
+                'Content' => $return,
+            ));
+        }
+    }
 
-	public function ItemEditForm() {
-		$form = parent::ItemEditForm();
-		$form->setAttribute('data-pjax-fragment', 'CurrentForm ');
-		return $form;
-	}
+    public function ItemEditForm()
+    {
+        $form = parent::ItemEditForm();
+        $form->setAttribute('data-pjax-fragment', 'CurrentForm ');
+        return $form;
+    }
 }
